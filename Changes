@@ -1,0 +1,23 @@
+Revision history for {{$dist->name}}
+
+0.10   Sun May  3 22:08:30 2009
+       Use Chart::Math::Axis to find scales for axes
+       New attrs: font_name, font_size, height, witch and max_ticks
+
+0.06   Mon Dec 15 14:25:43 2008
+       Use Path::Class to representing infile as an absolute path
+
+0.05   Fri Nov 28 03:58:45 2008
+       Seperate from AlignDB.
+       Become CPAN style package powered by Dist::Zilla
+
+0.03   2007/12/29 5:09:41
+       Set hyperlink column with large width in add_index_sheet 
+
+0.02   2007/11/10 0:26:35
+       Moosify this module and add a add_index_sheet method which comes from
+       HACK #7 in OReilly.Excel.Hacks.2nd.Edition
+
+0.01   2007/1/14 4:56:59
+       Rename Class_excel.pm to AlignDB::Excel.pm
+

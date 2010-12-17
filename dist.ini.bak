@@ -1,0 +1,21 @@
+name    = AlignDB-Excel
+version = 0.11
+author  = Wang Qiang <wangqiang1997@gmail.com>
+license = Perl_5
+copyright_holder = Wang Qiang
+
+[@Filter]
+bundle = @Classic
+remove = PodVersion
+remove = MetaYAML
+
+[MetaJSON]
+[NextRelease]
+[PodPurler]
+
+[Prereq]
+Moose            = 0
+Win32::OLE       = 0
+Set::Light       = 0
+List::MoreUtils  = 0
+YAML             = 0
