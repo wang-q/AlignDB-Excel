@@ -137,7 +137,7 @@ sub BUILD {
     my $outfile;
     unless ($outfile) {
         $outfile = $infile;
-        $outfile =~ s/(\.xls)$/.chart$1/;
+        $outfile =~ s/(\.xlsx?)$/.chart$1/;
     }
     $self->{outfile} = $outfile;
 
@@ -887,6 +887,8 @@ sub add_index_sheet {
     $sheet->{Name} = $sheet_name;
     $sheet->Cells( 1, 1 )->{Value} = $sheet_name;
     $sheet->Cells( 1, 1 )->{Name}  = $sheet_name;
+    $sheet->Cells( 1, 1 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 1, 1 )->{Font}->{Size} = $self->font_size;
 
     my $i = 1;
     foreach my $wsheet ( in $workbook->Worksheets ) {
@@ -904,6 +906,8 @@ sub add_index_sheet {
                 TextToDisplay => "Back to Index",
             }
         );
+        $range->{Font}->{Name} = $self->font_name;
+        $range->{Font}->{Size} = $self->font_size;
 
         # Add Hyperlinks to index sheet
         $sheet->Hyperlinks->Add(
@@ -913,6 +917,8 @@ sub add_index_sheet {
                 TextToDisplay => $wsheet->Name,
             }
         );
+        $sheet->Cells( $i, 1 )->{Font}->{Name} = $self->font_name;
+        $sheet->Cells( $i, 1 )->{Font}->{Size} = $self->font_size;
     }
 
     # set hyperlink column with large width
@@ -950,6 +956,8 @@ sub time_stamp {
     my $now = scalar localtime;
     $sheet->Cells( $last_row + 5, 1 )->{Value} = $now;
     $sheet->Cells( $last_row + 5, 1 )->{Font}->{Bold} = 1;
+    $sheet->Cells( $last_row + 5, 1 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( $last_row + 5, 1 )->{Font}->{Size} = $self->font_size;
 
     return;
 }
