@@ -103,7 +103,7 @@ Replace texts in titles
 
 =cut
 
-has 'replace' => ( is => 'rw', isa => 'HashRef', default => sub {{}} );
+has 'replace' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 
 =method BUILD
 
@@ -184,15 +184,15 @@ sub DEMOLISH {
 }
 
 sub _replace_text {
-    my $self = shift;
-    my $text = shift;
+    my $self    = shift;
+    my $text    = shift;
     my $replace = $self->replace;
-    
-    for my $key (keys %$replace) {
+
+    for my $key ( keys %$replace ) {
         my $value = $replace->{$key};
         $text =~ s/$key/$value/gi;
     }
-    
+
     return $text;
 }
 
@@ -250,8 +250,8 @@ sub draw_y {
     my $width     = $option->{Width}     || $self->width;
 
     # axis titles
-    my $x_title = $self->_replace_text($option->{x_title});
-    my $y_title = $self->_replace_text($option->{y_title});
+    my $x_title = $self->_replace_text( $option->{x_title} );
+    my $y_title = $self->_replace_text( $option->{y_title} );
 
     my $sheet;
     if ( $sheet_name_set->has($sheet_name) ) {
@@ -419,8 +419,8 @@ sub draw_c {
     $chart_object->{ChartArea}->{Border}->{LineStyle}   = xlLineStyleNone;
 
     # axis titles
-    my $x_title = $self->_replace_text($option->{x_title});
-    my $y_title = $self->_replace_text($option->{y_title});
+    my $x_title = $self->_replace_text( $option->{x_title} );
+    my $y_title = $self->_replace_text( $option->{y_title} );
 
     # X axis
     $chart_object->Axes(xlCategory)->{Border}->{Weight}          = xlThin;
@@ -462,8 +462,8 @@ sub draw_LineMarkers {
     my $width     = $option->{Width}     || $self->width;
 
     # axis titles
-    my $x_title = $self->_replace_text($option->{x_title});
-    my $y_title = $self->_replace_text($option->{y_title});
+    my $x_title = $self->_replace_text( $option->{x_title} );
+    my $y_title = $self->_replace_text( $option->{y_title} );
 
     my $sheet;
     if ( $sheet_name_set->has($sheet_name) ) {
@@ -568,8 +568,8 @@ sub draw_dd {
     my $width     = $option->{Width}     || $self->width;
 
     # axis titles
-    my $x_title = $self->_replace_text($option->{x_title});
-    my $y_title = $self->_replace_text($option->{y_title});
+    my $x_title = $self->_replace_text( $option->{x_title} );
+    my $y_title = $self->_replace_text( $option->{y_title} );
 
     my $sheet;
     if ( $sheet_name_set->has($sheet_name) ) {
@@ -759,8 +759,8 @@ sub draw_xy {
     my $add_trend = $option->{add_trend};
 
     # axis titles
-    my $x_title = $self->_replace_text($option->{x_title});
-    my $y_title = $self->_replace_text($option->{y_title});
+    my $x_title = $self->_replace_text( $option->{x_title} );
+    my $y_title = $self->_replace_text( $option->{y_title} );
 
     my $sheet;
     if ( $sheet_name_set->has($sheet_name) ) {
@@ -862,6 +862,106 @@ sub draw_xy {
     return;
 }
 
+sub linear_fit {
+    my ( $self, $sheet_name, $option ) = @_;
+
+    # get excel objects
+    my $excel          = $self->excel;
+    my $workbook       = $self->workbook;
+    my $worksheet_func = $self->worksheet_func;
+    my $sheet_name_set = $self->sheet_name_set;
+
+    my $sheet;
+    if ( $sheet_name_set->has($sheet_name) ) {
+        $sheet = $workbook->Worksheets($sheet_name);
+    }
+    else {
+        return;
+    }
+
+    # last row
+    my $last_row = $sheet->{UsedRange}->{Rows}->{Count};
+
+    my ( $x_column, $y_column )
+        = ( $option->{x_column}, $option->{y_column} );
+    my $x_range = $sheet->Range(
+        $sheet->Cells( 2,         $x_column ),
+        $sheet->Cells( $last_row, $x_column )
+    );
+    my $y_range = $sheet->Range(
+        $sheet->Cells( 2,         $y_column ),
+        $sheet->Cells( $last_row, $y_column )
+    );
+
+    my $x = [ $self->_all_in_range($x_range) ];
+    my $y = [ $self->_all_in_range($y_range) ];
+
+    #print Dump [$x, $y];
+
+    my ( $r_squared, $p_value ) = _r_lm( $x, $y );
+
+    my $chart_serial = $option->{chart_serial};
+    my $gap = 15 * ( $chart_serial - 1 );
+
+    #print Dump [$r_squared, $p_value];
+
+    # write values to cells
+    $sheet->Cells( 3 + $gap, 16 )->{Value}        = 'r_squared';
+    $sheet->Cells( 3 + $gap, 16 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 3 + $gap, 16 )->{Font}->{Size} = $self->font_size;
+    $sheet->Cells( 3 + $gap, 17 )->{Value}        = $r_squared;
+    $sheet->Cells( 3 + $gap, 17 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 3 + $gap, 17 )->{Font}->{Size} = $self->font_size;
+
+    $sheet->Cells( 4 + $gap, 16 )->{Value}        = 'p_value';
+    $sheet->Cells( 4 + $gap, 16 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 4 + $gap, 16 )->{Font}->{Size} = $self->font_size;
+    $sheet->Cells( 4 + $gap, 17 )->{Value}        = $p_value;
+    $sheet->Cells( 4 + $gap, 17 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 4 + $gap, 17 )->{Font}->{Size} = $self->font_size;
+
+    return;
+}
+
+# Fitting Linear Models using R
+sub _r_lm {
+    my $x = shift;
+    my $y = shift;
+
+    croak "Give two array-refs to me\n" if ref $x ne 'ARRAY';
+    croak "Give two array-refs to me\n" if ref $y ne 'ARRAY';
+    croak "Variable lengths differ\n"   if @$x != @$y;
+
+    require Statistics::R;
+
+    # Create a communication bridge with R and start R
+    my $R = Statistics::R->new;
+
+    $R->set( 'x', $x );
+    $R->set( 'y', $y );
+    $R->run(q{ fit = lm(y ~ x) });
+    $R->run(q{ r_squared <- summary(fit)$r.squared });
+    $R->run(
+        q{
+        lmp <- function (modelobject) {
+            if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+            f <- summary(modelobject)$fstatistic
+            p <- pf(f[1],f[2],f[3],lower.tail=F)
+            attributes(p) <- NULL
+            return(p)
+        }
+    }
+    );
+    $R->run(q{ p_value <- lmp(fit) });
+
+    my $r_squared = $R->get('r_squared');
+    my $p_value   = $R->get('p_value');
+
+    $R->stop;
+
+    return ( $r_squared, $p_value );
+}
+
 =method add_index_sheet
 
 See HACK #7 in OReilly.Excel.Hacks.2nd.Edition.
@@ -885,8 +985,8 @@ sub add_index_sheet {
         = $workbook->Worksheets->Add( { Before => $workbook->Worksheets(1) } )
         or croak Win32::OLE->LastError();
     $sheet->{Name} = $sheet_name;
-    $sheet->Cells( 1, 1 )->{Value} = $sheet_name;
-    $sheet->Cells( 1, 1 )->{Name}  = $sheet_name;
+    $sheet->Cells( 1, 1 )->{Value}        = $sheet_name;
+    $sheet->Cells( 1, 1 )->{Name}         = $sheet_name;
     $sheet->Cells( 1, 1 )->{Font}->{Name} = $self->font_name;
     $sheet->Cells( 1, 1 )->{Font}->{Size} = $self->font_size;
 
@@ -954,7 +1054,7 @@ sub time_stamp {
     my $last_row = $sheet->{UsedRange}->{Rows}->{Count};
 
     my $now = scalar localtime;
-    $sheet->Cells( $last_row + 5, 1 )->{Value} = $now;
+    $sheet->Cells( $last_row + 5, 1 )->{Value}        = $now;
     $sheet->Cells( $last_row + 5, 1 )->{Font}->{Bold} = 1;
     $sheet->Cells( $last_row + 5, 1 )->{Font}->{Name} = $self->font_name;
     $sheet->Cells( $last_row + 5, 1 )->{Font}->{Size} = $self->font_size;
