@@ -931,6 +931,7 @@ sub _r_lm {
     croak "Give two array-refs to me\n" if ref $x ne 'ARRAY';
     croak "Give two array-refs to me\n" if ref $y ne 'ARRAY';
     croak "Variable lengths differ\n"   if @$x != @$y;
+    return                              if @$x <= 2;
 
     require Statistics::R;
 
