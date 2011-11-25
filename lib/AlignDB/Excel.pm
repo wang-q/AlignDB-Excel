@@ -898,7 +898,7 @@ sub linear_fit {
 
     #print Dump [$x, $y];
 
-    my ( $r_squared, $p_value ) = _r_lm( $x, $y );
+    my ( $r_squared, $p_value, $intercept, $slope ) = _r_lm( $x, $y );
 
     my $chart_serial = $option->{chart_serial};
     my $gap = 15 * ( $chart_serial - 1 );
@@ -919,6 +919,20 @@ sub linear_fit {
     $sheet->Cells( 4 + $gap, 17 )->{Value}        = $p_value;
     $sheet->Cells( 4 + $gap, 17 )->{Font}->{Name} = $self->font_name;
     $sheet->Cells( 4 + $gap, 17 )->{Font}->{Size} = $self->font_size;
+
+    $sheet->Cells( 5 + $gap, 16 )->{Value}        = 'intercept';
+    $sheet->Cells( 5 + $gap, 16 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 5 + $gap, 16 )->{Font}->{Size} = $self->font_size;
+    $sheet->Cells( 5 + $gap, 17 )->{Value}        = $intercept;
+    $sheet->Cells( 5 + $gap, 17 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 5 + $gap, 17 )->{Font}->{Size} = $self->font_size;
+
+    $sheet->Cells( 6 + $gap, 16 )->{Value}        = 'slope';
+    $sheet->Cells( 6 + $gap, 16 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 6 + $gap, 16 )->{Font}->{Size} = $self->font_size;
+    $sheet->Cells( 6 + $gap, 17 )->{Value}        = $slope;
+    $sheet->Cells( 6 + $gap, 17 )->{Font}->{Name} = $self->font_name;
+    $sheet->Cells( 6 + $gap, 17 )->{Font}->{Size} = $self->font_size;
 
     return;
 }
@@ -942,10 +956,12 @@ sub _r_lm {
     $R->set( 'y', $y );
     $R->run(q{ fit = lm(y ~ x) });
     $R->run(q{ r_squared <- summary(fit)$r.squared });
+    $R->run(q{ intercept <- summary(fit)$coefficients[1] });
+    $R->run(q{ slope <- summary(fit)$coefficients[2] });
     $R->run(
         q{
         lmp <- function (modelobject) {
-            if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+            if (class(modelobject) != "lm") stop("Not an object of class 'lm'")
             f <- summary(modelobject)$fstatistic
             p <- pf(f[1],f[2],f[3],lower.tail=F)
             attributes(p) <- NULL
@@ -957,10 +973,12 @@ sub _r_lm {
 
     my $r_squared = $R->get('r_squared');
     my $p_value   = $R->get('p_value');
+    my $intercept = $R->get('intercept');
+    my $slope     = $R->get('slope');
 
     $R->stop;
 
-    return ( $r_squared, $p_value );
+    return ( $r_squared, $p_value, $intercept, $slope );
 }
 
 =method add_index_sheet
