@@ -475,6 +475,8 @@ sub draw_2y {
     # second axis
     $chart_object->SeriesCollection->Add( { Source => $y2_range } );
     $chart_object->SeriesCollection(2)->{AxisGroup} = xlSecondary;
+    $chart_object->SeriesCollection(2)->{MarkerSize} = 5;
+    
     $chart_object->Axes( xlValue, xlSecondary )->{Border}->{Weight}  = xlThin;
     $chart_object->Axes( xlValue, xlSecondary )->{HasMajorGridlines} = 0;
     $chart_object->Axes( xlValue, xlSecondary )->{HasTitle}          = 1;
