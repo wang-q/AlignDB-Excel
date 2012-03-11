@@ -352,6 +352,148 @@ sub draw_y {
     return;
 }
 
+
+=method draw_2y
+
+Draw xlXYScatterLines chart with 2 Y-axis
+
+=cut
+
+sub draw_2y {
+    my ( $self, $sheet_name, $option ) = @_;
+
+    # get excel objects
+    my $excel          = $self->excel;
+    my $workbook       = $self->workbook;
+    my $worksheet_func = $self->worksheet_func;
+    my $sheet_name_set = $self->sheet_name_set;
+
+    my $font_name = $option->{font_name} || $self->font_name;
+    my $font_size = $option->{font_size} || $self->font_size;
+    my $height    = $option->{Height}    || $self->height;
+    my $width     = $option->{Width}     || $self->width;
+
+    # axis titles
+    my $x_title = $self->_replace_text( $option->{x_title} );
+    my $y_title = $self->_replace_text( $option->{y_title} );
+    my $y2_title = $self->_replace_text( $option->{y2_title} );
+
+    my $sheet;
+    if ( $sheet_name_set->has($sheet_name) ) {
+        $sheet = $workbook->Worksheets($sheet_name);
+    }
+    else {
+        return;
+    }
+
+    # Range Length satrts at: A1 and finishes at: H3
+    my $first_row = $option->{first_row};
+    my $last_row  = $option->{last_row};
+    my ( $x_column, $y_column )
+        = ( $option->{x_column}, $option->{y_column} );
+    my ($y2_column) = ( $option->{y2_column} );
+
+    my $x_range = $sheet->Range(
+        $sheet->Cells( $first_row, $x_column ),
+        $sheet->Cells( $last_row,  $x_column )
+    );
+    my $y_range = $sheet->Range(
+        $sheet->Cells( $first_row, $y_column ),
+        $sheet->Cells( $last_row,  $y_column )
+    );
+    my $y2_range = $sheet->Range(
+        $sheet->Cells( $first_row, $y2_column ),
+        $sheet->Cells( $last_row,  $y2_column )
+    );
+    my $range = $excel->Union( $x_range, $y_range );
+
+    # Set axes' scale
+    my $x_max_scale = $option->{x_max_scale};
+    my $x_min_scale = $option->{x_min_scale};
+    unless ( defined $x_min_scale ) {
+        $x_min_scale = 0;
+    }
+    unless ( defined $x_max_scale ) {
+        my $x_scale_unit = $option->{x_scale_unit};
+        my $x_min_value  = $worksheet_func->Min($x_range);
+        my $x_max_value  = $worksheet_func->Max($x_range);
+        $x_min_scale = int( $x_min_value / $x_scale_unit ) * $x_scale_unit;
+        $x_max_scale
+            = ( int( $x_max_value / $x_scale_unit ) + 1 ) * $x_scale_unit;
+    }
+
+    my $y_scale = $self->_find_scale($y_range);
+    my $y2_scale = $self->_find_scale($y2_range);
+
+    # Select what type of chart you want
+    my $chart = $workbook->Charts->Add;
+    $chart->Location( xlLocationAsObject, $sheet_name );
+
+    my $chart_serial = $option->{chart_serial};
+    my $chart_object = $sheet->ChartObjects($chart_serial)->{chart};
+
+    # Position, size
+    $sheet->ChartObjects($chart_serial)->{Height} = $height;
+    $sheet->ChartObjects($chart_serial)->{Width}  = $width;
+    $sheet->ChartObjects($chart_serial)->{Top}    = $option->{Top};
+    $sheet->ChartObjects($chart_serial)->{Left}   = $option->{Left};
+
+    # ChartType
+    $chart_object->{ChartType} = xlXYScatterLines;
+    $chart_object->SetSourceData( { Source => $range, PlotBy => xlColumns } );
+
+    # Format
+    $chart_object->{HasTitle}                           = 0;
+    $chart_object->{HasLegend}                          = 0;
+    $chart_object->{PlotArea}->{Interior}->{ColorIndex} = 2;
+    $chart_object->{PlotArea}->{Border}->{LineStyle}    = xlLineStyleNone;
+    $chart_object->{ChartArea}->{Border}->{LineStyle}   = xlLineStyleNone;
+    $chart_object->{ChartArea}->{Font}->{Name}          = $font_name;
+    $chart_object->{ChartArea}->{Font}->{Size}          = $font_size;
+
+    # X axis
+    $chart_object->Axes(xlCategory)->{Border}->{Weight}           = xlThin;
+    $chart_object->Axes(xlCategory)->{HasMajorGridlines}          = 0;
+    $chart_object->Axes(xlCategory)->{HasTitle}                   = 1;
+    $chart_object->Axes(xlCategory)->{AxisTitle}->{Text}          = $x_title;
+    $chart_object->Axes(xlCategory)->{AxisTitle}->{AutoScaleFont} = 1;
+    $chart_object->Axes(xlCategory)->{MajorTickMark} = xlTickMarkInside;
+    $chart_object->Axes(xlCategory)->{MinimumScale}  = $x_min_scale;
+    $chart_object->Axes(xlCategory)->{MaximumScale}  = $x_max_scale;
+
+    # Y axis
+    $chart_object->Axes(xlValue)->{Border}->{Weight}           = xlThin;
+    $chart_object->Axes(xlValue)->{HasMajorGridlines}          = 0;
+    $chart_object->Axes(xlValue)->{HasTitle}                   = 1;
+    $chart_object->Axes(xlValue)->{AxisTitle}->{Text}          = $y_title;
+    $chart_object->Axes(xlValue)->{AxisTitle}->{AutoScaleFont} = 1;
+    $chart_object->Axes(xlValue)->{MajorTickMark} = xlTickMarkInside;
+    $chart_object->Axes(xlValue)->{MinimumScale}  = $y_scale->{bottom};
+    $chart_object->Axes(xlValue)->{MaximumScale}  = $y_scale->{top};
+    $chart_object->Axes(xlValue)->{MajorUnit}     = $y_scale->{unit};
+
+    # second axis
+    $chart_object->SeriesCollection->Add( { Source => $y2_range } );
+    $chart_object->SeriesCollection(2)->{AxisGroup} = xlSecondary;
+    $chart_object->Axes( xlValue, xlSecondary )->{Border}->{Weight}  = xlThin;
+    $chart_object->Axes( xlValue, xlSecondary )->{HasMajorGridlines} = 0;
+    $chart_object->Axes( xlValue, xlSecondary )->{HasTitle}          = 1;
+    $chart_object->Axes( xlValue, xlSecondary )->{AxisTitle}->{Text}
+        = $y2_title;
+    $chart_object->Axes( xlValue, xlSecondary )->{AxisTitle}->{AutoScaleFont}
+        = 1;
+    $chart_object->Axes( xlValue, xlSecondary )->{MajorTickMark}
+        = xlTickMarkInside;
+    $chart_object->Axes( xlValue, xlSecondary )->{MinimumScale}
+        = $y2_scale->{bottom};
+    $chart_object->Axes( xlValue, xlSecondary )->{MaximumScale}
+        = $y2_scale->{top};
+    $chart_object->Axes( xlValue, xlSecondary )->{MajorUnit}
+        = $y2_scale->{unit};
+
+    return;
+}
+
 =method draw_c
 
 Draw xlColumnClustered chart.
