@@ -264,8 +264,7 @@ sub draw_y {
     # Range Length satrts at: A1 and finishes at: H3
     my $first_row = $option->{first_row};
     my $last_row  = $option->{last_row};
-    my ( $x_column, $y_column )
-        = ( $option->{x_column}, $option->{y_column} );
+    my ( $x_column, $y_column ) = ( $option->{x_column}, $option->{y_column} );
     my ($y_last_column) = ( $option->{y_last_column} );
     unless ( defined $y_last_column ) {
         $y_last_column = $y_column;
@@ -352,7 +351,6 @@ sub draw_y {
     return;
 }
 
-
 =method draw_2y
 
 Draw xlXYScatterLines chart with 2 Y-axis
@@ -374,8 +372,8 @@ sub draw_2y {
     my $width     = $option->{Width}     || $self->width;
 
     # axis titles
-    my $x_title = $self->_replace_text( $option->{x_title} );
-    my $y_title = $self->_replace_text( $option->{y_title} );
+    my $x_title  = $self->_replace_text( $option->{x_title} );
+    my $y_title  = $self->_replace_text( $option->{y_title} );
     my $y2_title = $self->_replace_text( $option->{y2_title} );
 
     my $sheet;
@@ -389,8 +387,7 @@ sub draw_2y {
     # Range Length satrts at: A1 and finishes at: H3
     my $first_row = $option->{first_row};
     my $last_row  = $option->{last_row};
-    my ( $x_column, $y_column )
-        = ( $option->{x_column}, $option->{y_column} );
+    my ( $x_column, $y_column ) = ( $option->{x_column}, $option->{y_column} );
     my ($y2_column) = ( $option->{y2_column} );
 
     my $x_range = $sheet->Range(
@@ -422,7 +419,7 @@ sub draw_2y {
             = ( int( $x_max_value / $x_scale_unit ) + 1 ) * $x_scale_unit;
     }
 
-    my $y_scale = $self->_find_scale($y_range);
+    my $y_scale  = $self->_find_scale($y_range);
     my $y2_scale = $self->_find_scale($y2_range);
 
     # Select what type of chart you want
@@ -474,9 +471,9 @@ sub draw_2y {
 
     # second axis
     $chart_object->SeriesCollection->Add( { Source => $y2_range } );
-    $chart_object->SeriesCollection(2)->{AxisGroup} = xlSecondary;
+    $chart_object->SeriesCollection(2)->{AxisGroup}  = xlSecondary;
     $chart_object->SeriesCollection(2)->{MarkerSize} = 5;
-    
+
     $chart_object->Axes( xlValue, xlSecondary )->{Border}->{Weight}  = xlThin;
     $chart_object->Axes( xlValue, xlSecondary )->{HasMajorGridlines} = 0;
     $chart_object->Axes( xlValue, xlSecondary )->{HasTitle}          = 1;
@@ -522,8 +519,7 @@ sub draw_c {
     # Range Length satrts at: A1 and finishes at: H3
     my $first_row = $option->{first_row};
     my $last_row  = $option->{last_row};
-    my ( $x_column, $y_column )
-        = ( $option->{x_column}, $option->{y_column} );
+    my ( $x_column, $y_column ) = ( $option->{x_column}, $option->{y_column} );
     my $x_range = $sheet->Range(
         $sheet->Cells( $first_row, $x_column ),
         $sheet->Cells( $last_row,  $x_column )
@@ -620,8 +616,7 @@ sub draw_LineMarkers {
     # Range Length satrts at: A1 and finishes at: H3
     my $first_row = $option->{first_row};
     my $last_row  = $option->{last_row};
-    my ( $x_column, $y_column )
-        = ( $option->{x_column}, $option->{y_column} );
+    my ( $x_column, $y_column ) = ( $option->{x_column}, $option->{y_column} );
     my ($y_last_column) = ( $option->{y_last_column} );
     unless ( defined $y_last_column ) {
         $y_last_column = $y_column;
@@ -763,11 +758,8 @@ sub draw_dd {
         );
         $copy_range->Copy;
         my $paste_range = $sheet->Range(
-            $sheet->Cells( $paste_top, $paste_left + $i ),
-            $sheet->Cells(
-                $paste_top + $section_length - 1,
-                $paste_left + $i
-            )
+            $sheet->Cells( $paste_top,                       $paste_left + $i ),
+            $sheet->Cells( $paste_top + $section_length - 1, $paste_left + $i )
         );
         $paste_range->PasteSpecial;
     }
@@ -917,8 +909,7 @@ sub draw_xy {
     # last row
     my $last_row = $sheet->{UsedRange}->{Rows}->{Count};
 
-    my ( $x_column, $y_column )
-        = ( $option->{x_column}, $option->{y_column} );
+    my ( $x_column, $y_column ) = ( $option->{x_column}, $option->{y_column} );
     my $x_range = $sheet->Range(
         $sheet->Cells( 2,         $x_column ),
         $sheet->Cells( $last_row, $x_column )
@@ -1026,8 +1017,7 @@ sub linear_fit {
     # last row
     my $last_row = $sheet->{UsedRange}->{Rows}->{Count};
 
-    my ( $x_column, $y_column )
-        = ( $option->{x_column}, $option->{y_column} );
+    my ( $x_column, $y_column ) = ( $option->{x_column}, $option->{y_column} );
     my $x_range = $sheet->Range(
         $sheet->Cells( 2,         $x_column ),
         $sheet->Cells( $last_row, $x_column )
@@ -1123,6 +1113,41 @@ sub _r_lm {
     $R->stop;
 
     return ( $r_squared, $p_value, $intercept, $slope );
+}
+
+=method get_column
+
+put column values to an array
+
+=cut
+
+sub get_column {
+    my $self       = shift;
+    my $sheet_name = shift;
+    my $column     = shift;
+
+    # get excel objects
+    my $excel          = $self->excel;
+    my $workbook       = $self->workbook;
+    my $worksheet_func = $self->worksheet_func;
+    my $sheet_name_set = $self->sheet_name_set;
+
+    my $sheet;
+    if ( $sheet_name_set->has($sheet_name) ) {
+        $sheet = $workbook->Worksheets($sheet_name);
+    }
+    else {
+        return;
+    }
+
+    # last row
+    my $last_row = $sheet->{UsedRange}->{Rows}->{Count};
+    my $range = $sheet->Range( $sheet->Cells( 2, $column ),
+        $sheet->Cells( $last_row, $column ) );
+
+    my $array_ref = [ $self->_all_in_range($range) ];
+
+    return $array_ref;
 }
 
 =method add_index_sheet
