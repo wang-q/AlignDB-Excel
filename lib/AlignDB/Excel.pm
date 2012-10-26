@@ -983,8 +983,8 @@ sub draw_xy {
         $chart_object->SeriesCollection(1)->Trendlines->Add(
             {   Type            => xlLinear,
                 Name            => "Linear Trend",
-                DisplayRSquared => 1,
-                DisplayEquation => 1,
+                DisplayRSquared => 0,
+                DisplayEquation => 0,
             }
         );
         my $trendline = $chart_object->SeriesCollection(1)->Trendlines(1);
