@@ -464,6 +464,8 @@ sub draw_2y {
     $chart_object->Axes(xlValue)->{HasTitle}                   = 1;
     $chart_object->Axes(xlValue)->{AxisTitle}->{Text}          = $y_title;
     $chart_object->Axes(xlValue)->{AxisTitle}->{AutoScaleFont} = 1;
+    $chart_object->Axes(xlValue)->{AxisTitle}->{Font}->{Color}
+        = RGB( 79, 129, 189 );
     $chart_object->Axes(xlValue)->{MajorTickMark} = xlTickMarkInside;
     $chart_object->Axes(xlValue)->{MinimumScale}  = $y_scale->{bottom};
     $chart_object->Axes(xlValue)->{MaximumScale}  = $y_scale->{top};
@@ -481,6 +483,8 @@ sub draw_2y {
         = $y2_title;
     $chart_object->Axes( xlValue, xlSecondary )->{AxisTitle}->{AutoScaleFont}
         = 1;
+    $chart_object->Axes( xlValue, xlSecondary )->{AxisTitle}->{Font}->{Color}
+        = RGB( 192, 80, 77 );
     $chart_object->Axes( xlValue, xlSecondary )->{MajorTickMark}
         = xlTickMarkInside;
     $chart_object->Axes( xlValue, xlSecondary )->{MinimumScale}
