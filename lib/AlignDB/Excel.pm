@@ -3,7 +3,6 @@ package AlignDB::Excel;
 # ABSTRACT: A simple class to use excel to draw charts.
 
 use Moose;
-use Carp;
 
 use Win32::OLE qw(in);    # "with" show conflicting with Moose
 use Win32::OLE::Const 'Microsoft Excel';
@@ -63,7 +62,7 @@ Which font to use. Default is "Arial"
 
 =cut
 
-has 'font_name' => ( is => 'rw', isa => 'Str', default => 'Arial' );
+has 'font_name' => ( is => 'rw', isa => 'Str', default => sub {'Arial'}, );
 
 =attr font_size
 
@@ -71,7 +70,7 @@ Font size. Default is 10
 
 =cut
 
-has 'font_size' => ( is => 'rw', isa => 'Num', default => '10' );
+has 'font_size' => ( is => 'rw', isa => 'Num', default => sub {10}, );
 
 =attr height
 
@@ -79,7 +78,7 @@ Height of generated charts. Default is 200
 
 =cut
 
-has 'height' => ( is => 'rw', isa => 'Num', default => '200' );
+has 'height' => ( is => 'rw', isa => 'Num', default => sub {200}, );
 
 =attr width
 
@@ -87,7 +86,7 @@ Width of generated charts. Default is 320
 
 =cut
 
-has 'width' => ( is => 'rw', isa => 'Num', default => '320' );
+has 'width' => ( is => 'rw', isa => 'Num', default => sub {320}, );
 
 =attr max_ticks
 
@@ -95,7 +94,7 @@ Max tick number in the axes. Default is 6
 
 =cut
 
-has 'max_ticks' => ( is => 'rw', isa => 'Int', default => '6' );
+has 'max_ticks' => ( is => 'rw', isa => 'Int', default => sub {6} );
 
 =attr replace
 
@@ -125,7 +124,7 @@ sub BUILD {
     # Init excel object
     my $excel;
     unless ( $excel = Win32::OLE->new("Excel.Application") ) {
-        carp "Cannot init Excel.Application\n";
+        confess "Cannot init Excel.Application\n";
         return;
     }
     $excel->{DisplayAlerts} = 0;        # Turn off all alert boxes
@@ -144,7 +143,7 @@ sub BUILD {
     # open Excel file
     my $workbook;
     unless ( $workbook = $excel->Workbooks->Open($infile) ) {
-        carp "Cannot open Excel file\n";
+        confess "Cannot open Excel file\n";
         return;
     }
     $self->{workbook} = $workbook;
@@ -152,7 +151,7 @@ sub BUILD {
     # init WorksheetFunction
     my $worksheet_func;
     unless ( $worksheet_func = $excel->WorksheetFunction ) {
-        carp "Cannot init WorksheetFunction\n";
+        confess "Cannot init WorksheetFunction\n";
         return;
     }
     $self->{worksheet_func} = $worksheet_func;
@@ -1080,9 +1079,9 @@ sub _r_lm {
     my $x = shift;
     my $y = shift;
 
-    croak "Give two array-refs to me\n" if ref $x ne 'ARRAY';
-    croak "Give two array-refs to me\n" if ref $y ne 'ARRAY';
-    croak "Variable lengths differ\n"   if @$x != @$y;
+    confess "Give two array-refs to me\n" if ref $x ne 'ARRAY';
+    confess "Give two array-refs to me\n" if ref $y ne 'ARRAY';
+    confess "Variable lengths differ\n"   if @$x != @$y;
     return                              if @$x <= 2;
 
     require Statistics::R;
