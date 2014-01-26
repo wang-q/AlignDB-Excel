@@ -474,6 +474,8 @@ sub draw_2y {
     $chart_object->SeriesCollection->Add( { Source => $y2_range } );
     $chart_object->SeriesCollection(2)->{AxisGroup}  = xlSecondary;
     $chart_object->SeriesCollection(2)->{MarkerSize} = 5;
+    $chart_object->SeriesCollection(2)->{MarkerBackgroundColor}
+        = RGB( 255, 255, 255 );
 
     $chart_object->Axes( xlValue, xlSecondary )->{Border}->{Weight}  = xlThin;
     $chart_object->Axes( xlValue, xlSecondary )->{HasMajorGridlines} = 0;
@@ -1082,7 +1084,7 @@ sub _r_lm {
     confess "Give two array-refs to me\n" if ref $x ne 'ARRAY';
     confess "Give two array-refs to me\n" if ref $y ne 'ARRAY';
     confess "Variable lengths differ\n"   if @$x != @$y;
-    return                              if @$x <= 2;
+    return                                if @$x <= 2;
 
     require Statistics::R;
 
@@ -1103,8 +1105,7 @@ sub _r_lm {
             p <- pf(f[1],f[2],f[3],lower.tail=F)
             attributes(p) <- NULL
             return(p)
-        }
-    }
+        }}
     );
     $R->run(q{ p_value <- lmp(fit) });
 
