@@ -10,7 +10,7 @@ use Win32::OLE::Variant;
 use Win32::OLE::NLS qw(:LOCALE :DATE);
 $Win32::OLE::Warn = 3;    # die on errors...
 
-use Set::Light;
+use Set::Scalar;
 use List::MoreUtils qw( all any );
 use Path::Class;
 use Chart::Math::Axis;
@@ -113,7 +113,7 @@ has 'replace' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
      Throws : no exceptions
    Comments : The BUILD method is called by Moose::Object::BUILDALL, which is
             : called by Moose::Object::new. So it is also the constructor
-            : method. 
+            : method.
    See Also : n/a
 
 =cut
@@ -215,7 +215,7 @@ sub sheet_names {
 
 =method sheet_name_set
 
-Return a Set::Light object contains all worksheet names in the workbook.
+Return a Set::Scalar object contains all worksheet names in the workbook.
 
 =cut
 
@@ -223,7 +223,7 @@ sub sheet_name_set {
     my ($self) = @_;
 
     my $sheet_names_ref = $self->sheet_names();
-    my $sheet_name_set  = Set::Light->new(@$sheet_names_ref);
+    my $sheet_name_set  = Set::Scalar->new(@$sheet_names_ref);
 
     return $sheet_name_set;
 }
