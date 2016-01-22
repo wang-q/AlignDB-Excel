@@ -10,7 +10,7 @@
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : 2
+      "version" : "2"
    },
    "name" : "AlignDB-Excel",
    "no_index" : {
@@ -65,7 +65,7 @@
          "web" : "https://github.com/wang-q/AlignDB-Excel"
       }
    },
-   "version" : "1.0.0",
+   "version" : "1.0.1",
    "x_contributors" : [
       "wangq <wangqiang1997@gmail.com>"
    ]
