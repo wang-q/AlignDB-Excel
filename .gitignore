@@ -1,0 +1,28 @@
+/AlignDB-ToXLSX-*
+
+META.yml
+Makefile
+inc/
+pm_to_blib
+*~
+blib
+/.build
+/_build_params
+/Build
+!Build/
+!META.json
+!LICENSE
+
+.komodotools
+
+*.xls
+*.xlsx
+*.csv
+*.bak
+
+# put any other files you don't want to check in here,
+# such as .DS_Store (OSX), *.bak, etc.
+.DS_Store
+*.log
+*.bak
+*.swp

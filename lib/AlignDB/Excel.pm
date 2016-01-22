@@ -1,7 +1,4 @@
 package AlignDB::Excel;
-
-# ABSTRACT: A simple class to use excel to draw charts.
-
 use Moose;
 
 use Win32::OLE qw(in);    # "with" show conflicting with Moose
@@ -16,107 +13,19 @@ use Path::Class;
 use Chart::Math::Axis;
 use YAML qw(Dump Load DumpFile LoadFile);
 
-=attr excel
-
-isa Excel.Application Object
-
-=cut
+our $VERSION = '1.0.0';
 
 has 'excel' => ( is => 'ro', isa => 'Object' );
-
-=attr workbook
-
-isa Excel Workbook Object
-
-=cut
-
 has 'workbook' => ( is => 'ro', isa => 'Object' );
-
-=attr worksheet_func
-
-isa Excel WorksheetFunction Object
-
-=cut
-
 has 'worksheet_func' => ( is => 'ro', isa => 'Object' );
-
-=attr infile
-
-Input Excel file name
-
-=cut
-
 has 'infile' => ( is => 'ro', isa => 'Str', required => 1 );
-
-=attr outfile
-
-Output Excel file name
-
-=cut
-
 has 'outfile' => ( is => 'ro', isa => 'Str' );
-
-=attr font_name
-
-Which font to use. Default is "Arial"
-
-=cut
-
 has 'font_name' => ( is => 'rw', isa => 'Str', default => sub {'Arial'}, );
-
-=attr font_size
-
-Font size. Default is 10
-
-=cut
-
 has 'font_size' => ( is => 'rw', isa => 'Num', default => sub {10}, );
-
-=attr height
-
-Height of generated charts. Default is 200
-
-=cut
-
 has 'height' => ( is => 'rw', isa => 'Num', default => sub {200}, );
-
-=attr width
-
-Width of generated charts. Default is 320
-
-=cut
-
 has 'width' => ( is => 'rw', isa => 'Num', default => sub {320}, );
-
-=attr max_ticks
-
-Max tick number in the axes. Default is 6
-
-=cut
-
 has 'max_ticks' => ( is => 'rw', isa => 'Int', default => sub {6} );
-
-=attr replace
-
-Replace texts in titles
-
-=cut
-
 has 'replace' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
-
-=method BUILD
-
-      Usage : $obj->BUILD
-    Purpose : Init Excel object and open input file.
-    Returns : None
- Parameters : None
-     Throws : no exceptions
-   Comments : The BUILD method is called by Moose::Object::BUILDALL, which is
-            : called by Moose::Object::new. So it is also the constructor
-            : method.
-   See Also : n/a
-
-=cut
 
 sub BUILD {
     my $self = shift;
@@ -159,13 +68,6 @@ sub BUILD {
     return;
 }
 
-=method DEMOLISH
-
-instance destructor
-save excel file and close excel object
-
-=cut
-
 sub DEMOLISH {
     my $self = shift;
 
@@ -195,12 +97,6 @@ sub _replace_text {
     return $text;
 }
 
-=method sheet_names
-
-Return an ArrayRef contains all worksheet names in the workbook.
-
-=cut
-
 sub sheet_names {
     my ($self) = @_;
     my $workbook = $self->workbook;
@@ -213,12 +109,6 @@ sub sheet_names {
     return \@sheet_names;
 }
 
-=method sheet_name_set
-
-Return a Set::Scalar object contains all worksheet names in the workbook.
-
-=cut
-
 sub sheet_name_set {
     my ($self) = @_;
 
@@ -227,12 +117,6 @@ sub sheet_name_set {
 
     return $sheet_name_set;
 }
-
-=method draw_y
-
-Draw xlXYScatterLines chart.
-
-=cut
 
 sub draw_y {
     my ( $self, $sheet_name, $option ) = @_;
@@ -349,12 +233,6 @@ sub draw_y {
 
     return;
 }
-
-=method draw_2y
-
-Draw xlXYScatterLines chart with 2 Y-axis
-
-=cut
 
 sub draw_2y {
     my ( $self, $sheet_name, $option ) = @_;
@@ -498,12 +376,6 @@ sub draw_2y {
     return;
 }
 
-=method draw_c
-
-Draw xlColumnClustered chart.
-
-=cut
-
 sub draw_c {
     my ( $self, $sheet_name, $option ) = @_;
 
@@ -585,12 +457,6 @@ sub draw_c {
 
     return;
 }
-
-=method draw_LineMarkers
-
-Draw xlLineMarkers chart.
-
-=cut
 
 sub draw_LineMarkers {
     my ( $self, $sheet_name, $option ) = @_;
@@ -690,12 +556,6 @@ sub draw_LineMarkers {
 
     return;
 }
-
-=method draw_dd
-
-Draw a special xlLineMarkers chart, distance-density chart.
-
-=cut
 
 sub draw_dd {
     my ( $self, $sheet_name, $option ) = @_;
@@ -868,13 +728,6 @@ sub draw_dd {
 
     return;
 }
-
-=method draw_xy
-
-Draw a special xlXYScatter or xlXYScatterLines chart, in which $last_row is
-determined automatically
-
-=cut
 
 sub draw_xy {
     my ( $self, $sheet_name, $option ) = @_;
@@ -1119,12 +972,6 @@ sub _r_lm {
     return ( $r_squared, $p_value, $intercept, $slope );
 }
 
-=method get_column
-
-put column values to an array
-
-=cut
-
 sub get_column {
     my $self       = shift;
     my $sheet_name = shift;
@@ -1153,15 +1000,6 @@ sub get_column {
 
     return $array_ref;
 }
-
-=method add_index_sheet
-
-See HACK #7 in OReilly.Excel.Hacks.2nd.Edition.
-
-This method should be called after all draw_xxx methods to avoid confusing
-those methods.
-
-=cut
 
 sub add_index_sheet {
     my $self = shift;
@@ -1219,12 +1057,6 @@ sub add_index_sheet {
     return;
 }
 
-=method time_stamp
-
-Add a time stamp to worksheet.
-
-=cut
-
 sub time_stamp {
     my ( $self, $sheet_name ) = @_;
 
@@ -1253,12 +1085,6 @@ sub time_stamp {
 
     return;
 }
-
-=method jc_correction
-
-Do JC correction on some columns.
-
-=cut
 
 sub jc_correction {
     my ($self) = @_;
@@ -1377,10 +1203,142 @@ sub RGB {
 
 __END__
 
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+AlignDB::Excel - A simple class to use excel to draw charts.
+
 =head1 DESCRIPTION
 
 C<AlignDB::Excel> is a  simple class to use excel to draw charts.
 
 Use Win32::OLE module
+
+=head1 ATTRIBUTES
+
+=head2 excel
+
+isa Excel.Application Object
+
+=head2 workbook
+
+isa Excel Workbook Object
+
+=head2 worksheet_func
+
+isa Excel WorksheetFunction Object
+
+=head2 infile
+
+Input Excel file name
+
+=head2 outfile
+
+Output Excel file name
+
+=head2 font_name
+
+Which font to use. Default is "Arial"
+
+=head2 font_size
+
+Font size. Default is 10
+
+=head2 height
+
+Height of generated charts. Default is 200
+
+=head2 width
+
+Width of generated charts. Default is 320
+
+=head2 max_ticks
+
+Max tick number in the axes. Default is 6
+
+=head2 replace
+
+Replace texts in titles
+
+=head1 METHODS
+
+=head2 BUILD
+
+Init Excel object and open input file.
+
+The BUILD method is called by Moose::Object::BUILDALL, which is
+called by Moose::Object::new. So it is also the constructor
+method.
+
+=head2 DEMOLISH
+
+instance destructor
+save excel file and close excel object
+
+=head2 sheet_names
+
+Return an ArrayRef contains all worksheet names in the workbook.
+
+=head2 sheet_name_set
+
+Return a Set::Scalar object contains all worksheet names in the workbook.
+
+=head2 draw_y
+
+Draw xlXYScatterLines chart.
+
+=head2 draw_2y
+
+Draw xlXYScatterLines chart with 2 Y-axis
+
+=head2 draw_c
+
+Draw xlColumnClustered chart.
+
+=head2 draw_LineMarkers
+
+Draw xlLineMarkers chart.
+
+=head2 draw_dd
+
+Draw a special xlLineMarkers chart, distance-density chart.
+
+=head2 draw_xy
+
+Draw a special xlXYScatter or xlXYScatterLines chart, in which $last_row is
+determined automatically
+
+=head2 get_column
+
+put column values to an array
+
+=head2 add_index_sheet
+
+See HACK #7 in OReilly.Excel.Hacks.2nd.Edition.
+
+This method should be called after all draw_xxx methods to avoid confusing
+those methods.
+
+=head2 time_stamp
+
+Add a time stamp to worksheet.
+
+=head2 jc_correction
+
+Do JC correction on some columns.
+
+=head1 AUTHOR
+
+Qiang Wang <wang-q@outlook.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2008 by Qiang Wang.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

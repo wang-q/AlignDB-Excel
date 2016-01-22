@@ -1,7 +1,7 @@
 use Test::More tests => 1;
 
 BEGIN {
-use_ok( 'AlignDB::Excel' );
+    use_ok('AlignDB::Excel');
 }
 
-diag( "Testing AlignDB::Excel $AlignDB::Excel::VERSION" );
+diag("Testing AlignDB::Excel $AlignDB::Excel::VERSION");
