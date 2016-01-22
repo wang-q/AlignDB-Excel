@@ -13,7 +13,7 @@ use Path::Class;
 use Chart::Math::Axis;
 use YAML qw(Dump Load DumpFile LoadFile);
 
-our $VERSION = '1.0.0';
+our $VERSION = '1.0.1';
 
 has 'excel' => ( is => 'ro', isa => 'Object' );
 has 'workbook' => ( is => 'ro', isa => 'Object' );
