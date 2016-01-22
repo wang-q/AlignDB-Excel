@@ -1,6 +1,8 @@
 Revision history for AlignDB-Excel
 
 {{$NEXT}}
+
+1.0.0  2016-01-22 20:26:34 IRKT
     - Switch to Dist::Milla
 
 0.10   Sun May  3 22:08:30 2009
